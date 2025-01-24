@@ -22,8 +22,9 @@ class ProductDiscount extends Model
         return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
-    public static function calculateDiscount($productId, $variantId = null, $qty)
+    public static function calculateDiscount($productId, $variantId = null, $qty, $userRole)
     {
+        // Query untuk mencari diskon berdasarkan product_id, variant_id, dan user_role
         $query = self::where('product_id', $productId);
 
         // Jika variant_id disediakan, tambahkan ke query
@@ -31,22 +32,25 @@ class ProductDiscount extends Model
             $query->where('variant_id', $variantId);
         }
 
-        // Ambil semua aturan diskon
-        $discountRules = $query->orderBy('min_qty', 'asc')->get();
+        // Menyaring berdasarkan role pengguna
+        $query->where('user_role', $userRole);
 
-        $bestDiscount = 0;
+        // Ambil aturan diskon yang relevan
+        $discountRules = $query->orderByDesc('min_qty')->get(); // Urutkan berdasarkan min_qty terbesar
 
-        // Iterasi aturan diskon untuk menemukan yang cocok dengan qty
+        $bestDiscount = 0; // Default tidak ada diskon
+
+        // Iterasi aturan diskon untuk menemukan yang paling cocok dan terbaik
         foreach ($discountRules as $rule) {
+            // Periksa apakah qty memenuhi syarat untuk diskon ini
             if ($qty >= $rule->min_qty && ($rule->max_qty === null || $qty <= $rule->max_qty)) {
-                // Simpan diskon terbaik (yang memiliki min_qty terbesar yang cocok dengan qty)
-                if ($rule->min_qty <= $qty) {
-                    $bestDiscount = max($bestDiscount, $rule->persentase_diskon); // Pilih diskon tertinggi yang cocok
-                }
+                // Pilih diskon yang paling cocok
+                $bestDiscount = max($bestDiscount, $rule->persentase_diskon);
             }
         }
 
-        return $bestDiscount; // Kembalikan diskon terbaik yang ditemukan
+        return $bestDiscount; // Mengembalikan diskon terbaik yang ditemukan
     }
+
 
 }

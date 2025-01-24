@@ -20,14 +20,14 @@
                                         {{ $item->variant->variant }}</p>
                                     <div class="flex w-full items-center gap-10">
                                         <p class="font-semibold">Qty: {{ $item->qty }}</p>
-                                        <p class="font-bold">Rp. {{ number_format($item->price, 2) }}</p>
+                                        <p class="font-bold">Rp. {{ number_format($item->price, 0) }}</p>
                                     </div>
                                     @if ($item->discount > 0)
                                         <div class="text-red-500">
                                             <p>Diskon: {{ number_format($item->discount, 0) }}%</p>
                                             <!-- Menampilkan diskon dalam persen -->
                                             <p>Harga setelah diskon: Rp.
-                                                {{ number_format($item->price_after_discount, 2) }}</p>
+                                                {{ number_format($item->price_after_discount, 0) }}</p>
                                         </div>
                                     @endif
                                 </div>
@@ -48,7 +48,7 @@
             @endif
         </div>
         <div class="flex h-auto max-h-[500px] w-72 flex-col justify-between bg-gray-300 p-5 shadow-sm">
-            <h1 class="bg-gray-500 px-3 py-5 text-left text-2xl font-bold uppercase text-gray-300">ringkasan</h1>
+            <h1 class="bg-gray-500 px-3 py-5 text-left text-2xl font-bold uppercase text-gray-100">ringkasan</h1>
             <div class="py-5 text-center text-lg font-bold">
                 <p>Gratis Pengiriman di atas</p>
                 <p>Rp. 10.000.000</p>
@@ -56,11 +56,11 @@
             </div>
             <div class="mt-5 flex justify-between px-5">
                 <p>Subtotal: </p>
-                <p>Rp. {{ $cart->total }}</p>
+                <p>Rp. {{ number_format($cart->total, 0) }}</p>
             </div>
             <div class="mt-16 flex justify-between px-5 font-bold">
                 <p>Grand Total: </p>
-                <p>Rp. {{ number_format($grandTotal, 2) }}</p>
+                <p>Rp. {{ number_format($grandTotal, 0) }}</p>
                 <!-- Grand total yang sudah dihitung berdasarkan subtotal after discount -->
             </div>
 

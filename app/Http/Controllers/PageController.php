@@ -71,11 +71,12 @@ class PageController extends Controller
             ->first();
 
         $grandTotal = 0;
+        $userRole = Auth::user()->role;  // Mengambil role dari akun yang login
 
         if ($cart) {
             foreach ($cart->CartDetail as $detail) {
-                // Hitung diskon untuk produk
-                $discount = ProductDiscount::calculateDiscount($detail->product->id, $detail->variant->id, $detail->qty);
+                // Hitung diskon untuk produk berdasarkan user role
+                $discount = ProductDiscount::calculateDiscount($detail->product->id, $detail->variant->id, $detail->qty, $userRole);
 
                 if ($discount > 0) {
                     // Harga setelah diskon: karena diskon sudah dalam bentuk desimal, tidak perlu dibagi 100 lagi
