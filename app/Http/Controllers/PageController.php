@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\Product;
+use App\Models\ProductDiscount;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,12 +32,17 @@ class PageController extends Controller
         $product = ProductVariant::with('product')->where('id', $id)->first();
 
         $detailCart = CartDetail::where('cart_id', $cart->id)
-        ->where('product_id', $id)
-        ->first();
+            ->where('product_id', $product->product->id)
+            ->where('variant_id', $id)
+            ->first();
 
         if ($detailCart) {
+            if (!$detailCart->price) {
+                $detailCart->price = $product->inc_ppn;
+            }
+
             $detailCart->qty += $request->qty;
-            $detailCart->subtotal = $detailCart->inc_ppn * $detailCart->qty;
+            $detailCart->subtotal = $detailCart->price * $detailCart->qty;
             $detailCart->save();
         } else {
             $detailCart = new CartDetail();
@@ -57,13 +63,51 @@ class PageController extends Controller
         return redirect()->route('home');
     }
 
+
     public function cart()
     {
-        $cart = Cart::with('CartDetail.product')->where('user_id', Auth::user()->id)->first();
+        $cart = Cart::with(['CartDetail.product.discounts', 'CartDetail.variant'])
+            ->where('user_id', Auth::user()->id)
+            ->first();
+
+        $grandTotal = 0;
+
+        if ($cart) {
+            foreach ($cart->CartDetail as $detail) {
+                // Hitung diskon untuk produk
+                $discount = ProductDiscount::calculateDiscount($detail->product->id, $detail->variant->id, $detail->qty);
+
+                if ($discount > 0) {
+                    // Harga setelah diskon: karena diskon sudah dalam bentuk desimal, tidak perlu dibagi 100 lagi
+                    $priceAfterDiscount = $detail->price * (1 - $discount); // diskon langsung dalam desimal
+                    $subtotalAfterDiscount = $detail->qty * $priceAfterDiscount;
+
+                    // Update detail produk
+                    $detail->discount = $discount * 100; // Konversi ke persentase untuk ditampilkan
+                    $detail->price_after_discount = $priceAfterDiscount;
+                    $detail->subtotal_after_discount = $subtotalAfterDiscount;
+
+                    // Tambahkan ke grand total
+                    $grandTotal += $subtotalAfterDiscount;
+                } else {
+                    // Jika tidak ada diskon, gunakan harga normal
+                    $detail->discount = 0;
+                    $detail->price_after_discount = $detail->price;
+                    $detail->subtotal_after_discount = $detail->qty * $detail->price;
+
+                    // Tambahkan ke grand total tanpa diskon
+                    $grandTotal += $detail->subtotal_after_discount;
+                }
+            }
+        }
 
         return view('pages.cart', [
             'cart' => $cart,
-            'details' => $cart->CartDetail
+            'details' => $cart->CartDetail ?? collect(),
+            'grandTotal' => $grandTotal,  // Pass grand total to view
         ]);
     }
+
+
+
 }

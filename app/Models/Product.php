@@ -21,4 +21,9 @@ class Product extends Model
     {
         return $this->hasOne(ProductVariant::class);
     }
+
+    public function discounts()
+    {
+        return $this->hasMany(ProductDiscount::class);
+    }
 }

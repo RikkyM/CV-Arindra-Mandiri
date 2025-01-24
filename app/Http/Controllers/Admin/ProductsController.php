@@ -105,15 +105,13 @@ class ProductsController extends Controller
 
     public function UpdateKriteria($id, Request $request)
     {
-        // dd($request->all
-
         $request->validate([
             'discounts.*.min_qty' => 'nullable|integer|required_with:discounts.*.percent_discount',
             'discounts.*.max_qty' => [
                 'nullable',
                 'integer',
                 function ($attribute, $value, $fail) use ($request) {
-                    $index = explode('.', $attribute)[1]; // Ambil indeks dari atribut (e.g., discounts.{index}.max_qty)
+                    $index = explode('.', $attribute)[1];
                     $minQty = $request->input("discounts.$index.min_qty");
 
                     if ($value !== null && $minQty !== null && $value <= $minQty) {
@@ -127,12 +125,10 @@ class ProductsController extends Controller
 
         $product = ProductVariant::with('product')->findOrFail($id);
 
-        // Clear existing discounts hanya untuk `variant_id` dan `user_role` yang sama
         ProductDiscount::where('variant_id', $id)->delete();
 
         foreach ($request->discounts as $discount) {
             if (!empty($discount['min_qty']) && !empty($discount['percent_discount'])) {
-                // Simpan setiap diskon dengan mempertimbangkan user_role
                 ProductDiscount::create([
                     'product_id' => $product->product->id,
                     'variant_id' => $id,
@@ -146,5 +142,4 @@ class ProductsController extends Controller
 
         return redirect()->back()->with('success', 'Kriteria discount berhasil diperbarui');
     }
-
 }

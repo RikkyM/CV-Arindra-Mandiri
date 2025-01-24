@@ -22,19 +22,31 @@ class ProductDiscount extends Model
         return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
-    public static function calculateDiscount($productId, $variantId, $qty)
+    public static function calculateDiscount($productId, $variantId = null, $qty)
     {
-        $discountRules = self::where('product_id', $productId)
-            ->where('variant_id', $variantId)
-            ->orderBy('min_qty', 'asc')
-            ->get();
+        $query = self::where('product_id', $productId);
 
+        // Jika variant_id disediakan, tambahkan ke query
+        if (!is_null($variantId)) {
+            $query->where('variant_id', $variantId);
+        }
+
+        // Ambil semua aturan diskon
+        $discountRules = $query->orderBy('min_qty', 'asc')->get();
+
+        $bestDiscount = 0;
+
+        // Iterasi aturan diskon untuk menemukan yang cocok dengan qty
         foreach ($discountRules as $rule) {
             if ($qty >= $rule->min_qty && ($rule->max_qty === null || $qty <= $rule->max_qty)) {
-                return $rule->persentase_diskon;
+                // Simpan diskon terbaik (yang memiliki min_qty terbesar yang cocok dengan qty)
+                if ($rule->min_qty <= $qty) {
+                    $bestDiscount = max($bestDiscount, $rule->persentase_diskon); // Pilih diskon tertinggi yang cocok
+                }
             }
         }
 
-        return 0;
+        return $bestDiscount; // Kembalikan diskon terbaik yang ditemukan
     }
+
 }

@@ -8,7 +8,7 @@
             @csrf
             <h2 class="text-3xl font-bold capitalize">{{ $product->product->nama_product }} {{ $product->variant }}</h2>
             <div class="flex max-w-xs flex-col gap-3">
-                <h2 class="text-3xl font-bold capitalize">Rp. {{ $product->price }}</h2>
+                <h2 class="text-3xl font-bold capitalize">Rp. {{ $product->inc_ppn }}</h2>
                 <div class="flex items-center gap-5">
                     <label for="qty">
                         <input type="number" name="qty" id="qty" value="1"
