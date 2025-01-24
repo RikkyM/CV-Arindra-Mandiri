@@ -6,7 +6,7 @@
         <form action="{{ route('detail_product', ['id' => $product->id]) }}" method="POST"
             class="flex flex-1 flex-col justify-between">
             @csrf
-            <h2 class="text-3xl font-bold capitalize">{{ $product->nama_product }}</h2>
+            <h2 class="text-3xl font-bold capitalize">{{ $product->product->nama_product }} {{ $product->variant }}</h2>
             <div class="flex max-w-xs flex-col gap-3">
                 <h2 class="text-3xl font-bold capitalize">Rp. {{ $product->price }}</h2>
                 <div class="flex items-center gap-5">

@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -45,35 +46,38 @@ class DatabaseSeeder extends Seeder
 
         $products = [
             [
-                'nama_product' => 'cream cheese',
-                'stock' => '20',
-                'price' => '1450000'
+                'nama_product' => 'dunia compound dark'
             ],
             [
-                'nama_product' => 'keju edam',
-                'stock' => '32',
-                'price' => '2437750'
+                'nama_product' => 'dunia super compount / prima'
+            ],
+        ];
+
+        $variants = [
+            [
+                'product_id' => 1,
+                'variant' => 'ekonomi',
+                'stock' => 20,
+                'weight' => '1 KG',
+                'exc_ppn' => 361000,
+                'inc_ppn' => 400710
             ],
             [
-                'nama_product' => 'tulip burgundy',
-                'stock' => '34',
-                'price' => '1678000'
+                'product_id' => 1,
+                'variant' => 'decor',
+                'stock' => 42,
+                'weight' => '250 GR',
+                'exc_ppn' => 266000,
+                'inc_ppn' => 295260
             ],
             [
-                'nama_product' => 'cocoa powder',
-                'stock' => '10',
-                'price' => '5000000'
+                'product_id' => 2,
+                'variant' => null,
+                'stock' => 13,
+                'weight' => '250 GR',
+                'exc_ppn' => 308000,
+                'inc_ppn' => 341880
             ],
-            [
-                'nama_product' => 'colatta chip',
-                'stock' => '54',
-                'price' => '325000'
-            ],
-            [
-                'nama_product' => 'meses holland',
-                'stock' => '28',
-                'price' => '615000'
-            ]
         ];
 
         foreach ($users as $user) {
@@ -82,6 +86,10 @@ class DatabaseSeeder extends Seeder
 
         foreach ($products as $product) {
             Product::create($product);
+        }
+
+        foreach ($variants as $variant) {
+            ProductVariant::create($variant);
         }
 
         Cart::create([

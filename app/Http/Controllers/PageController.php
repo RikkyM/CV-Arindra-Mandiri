@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,22 +14,21 @@ class PageController extends Controller
     public function home()
     {
         return view('pages.home', [
-            'products' => Product::all()
+            'products' => ProductVariant::all()
         ]);
     }
 
     public function detailProduct($id)
     {
         return view('pages.detail-product', [
-            'product' => Product::where('id', $id)->first()
+            'product' => ProductVariant::with('product')->where('id', $id)->first()
         ]);
     }
 
     public function cartProduct($id, Request $request)
     {
         $cart = Cart::where('user_id', Auth::user()->id)->first();
-        $product = Product::where('id', $id)->first();
-
+        $product = ProductVariant::with('product')->where('id', $id)->first();
 
         $detailCart = CartDetail::where('cart_id', $cart->id)
         ->where('product_id', $id)
@@ -36,15 +36,16 @@ class PageController extends Controller
 
         if ($detailCart) {
             $detailCart->qty += $request->qty;
-            $detailCart->subtotal = $detailCart->price * $detailCart->qty;
+            $detailCart->subtotal = $detailCart->inc_ppn * $detailCart->qty;
             $detailCart->save();
         } else {
             $detailCart = new CartDetail();
             $detailCart->cart_id = $cart->id;
-            $detailCart->product_id = $id;
+            $detailCart->product_id = $product->product->id;
+            $detailCart->variant_id = $id;
             $detailCart->qty = $request->qty;
-            $detailCart->price = $product->price;
-            $detailCart->subtotal = $product->price * $request->qty;
+            $detailCart->price = $product->inc_ppn;
+            $detailCart->subtotal = $product->inc_ppn * $request->qty;
             $detailCart->status = 'pending';
             $detailCart->save();
         }

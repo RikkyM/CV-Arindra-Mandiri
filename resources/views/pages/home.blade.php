@@ -48,8 +48,8 @@
             <div class="grid grid-cols-3 grid-rows-1 gap-4 py-3 lg:grid-cols-6">
                 @foreach ($products as $index => $product)
                     <a href="{{ route('detail_product', ['id' => $product->id]) }}"
-                        class="flex aspect-square items-center justify-center bg-white">
-                        {{ $product->nama_product }}
+                        class="flex aspect-square items-center justify-center bg-white capitalize text-xs">
+                        {{ $product->product->nama_product }} {{ $product->variant }}
                     </a>
                 @endforeach
             </div>

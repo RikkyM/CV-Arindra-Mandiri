@@ -1,5 +1,5 @@
 <x-app :title="$title">
-    <section class="h-screen w-full bg-yellow-500 flex">
+    <section class="h-screen w-full flex">
         <x-sidebar.sidebar />
         <main class="w-full p-10">
             {{ $slot }}

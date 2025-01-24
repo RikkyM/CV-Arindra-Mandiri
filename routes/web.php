@@ -38,5 +38,10 @@ Route::get('/users', [UsersController::class, 'index'])->name('users');
 Route::get('/users/{id}/activate', [UsersController::class, 'activate'])->name('users.activate');
 Route::get('/users/{id}/deactivate', [UsersController::class, 'deactivate'])->name('users.deactivate');
 Route::get('/products', [ProductsController::class, 'index'])->name('products');
-Route::post('/products', [ProductsController::class, 'store']);
+
+Route::get('/add-product', [ProductsController::class, 'create'])->name('add-product');
+Route::post('/add-product', [ProductsController::class, 'store']);
+
+Route::get('/update-kriteria/{id}', [ProductsController::class, 'EditKriteria'])->name('update-kriteria');
+Route::post('/update-kriteria/{id}', [ProductsController::class, 'UpdateKriteria']);
 

@@ -11,4 +11,14 @@ class Product extends Model
 
     protected $table = 'products';
     protected $fillable = ['nama_product', 'slug', 'stock', 'price'];
+
+    public function variant()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function varian()
+    {
+        return $this->hasOne(ProductVariant::class);
+    }
 }

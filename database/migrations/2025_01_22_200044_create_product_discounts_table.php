@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('product_discounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('variant_id')->constrained('product_variants')->onDelete('cascade')->onUpdate('cascade');
             $table->integer('min_qty');
+            $table->integer('max_qty')->nullable();
             $table->decimal('persentase_diskon', 5, 2);
+            $table->enum('user_role', ['toko', 'konsumen']);
             $table->timestamps();
         });
     }
