@@ -95,6 +95,78 @@ class ProductsController extends Controller
         return redirect()->route('products');
     }
 
+    public function edit($id)
+    {
+        $productVariant = ProductVariant::with('product')->findOrFail($id);
+        return view('pages.admin.products.edit-product', [
+            'productVariant' => $productVariant
+        ]);
+    }
+
+    public function update($id, Request $request)
+    {
+        $validatedData = $request->validate([
+            'nama_produk' => [
+                'nullable',
+                function ($attribute, $value, $fail) use ($id) {
+                    if (!empty($value)) {
+                        $productVariant = ProductVariant::findOrFail($id);
+                        $existingProduct = Product::where('nama_product', strtolower($value))
+                            ->where('id', '!=', $productVariant->product_id)
+                            ->exists();
+
+                        if ($existingProduct) {
+                            $fail('Product name already exists.');
+                        }
+                    }
+                }
+            ],
+            'variant' => [
+                'nullable',
+                function ($attribute, $value, $fail) use ($id) {
+                    $productVariant = ProductVariant::findOrFail($id);
+                    $existingVariant = ProductVariant::where('product_id', $productVariant->product_id)
+                        ->where('variant', strtolower($value))
+                        ->where('id', '!=', $id)
+                        ->exists();
+
+                    if ($existingVariant) {
+                        $fail('Variant already exists for this product.');
+                    }
+                }
+            ],
+            'stock' => 'required|integer',
+            'weight' => 'required|integer',
+            'weight_unit' => 'required',
+            'exc_ppn' => 'required|integer',
+            'inc_ppn' => 'required|integer'
+        ]);
+
+        // Find the existing product variant
+        $productVariant = ProductVariant::findOrFail($id);
+
+        // Update product name if changed
+        $product = $productVariant->product;
+        if (
+            !empty($validatedData['nama_produk']) &&
+            strtolower($product->nama_product) !== strtolower($validatedData['nama_produk'])
+        ) {
+            $product->nama_product = strtolower($validatedData['nama_produk']);
+            $product->save();
+        }
+
+        // Update product variant details
+        $productVariant->update([
+            'variant' => $validatedData['variant'],
+            'stock' => $validatedData['stock'],
+            'weight' => $validatedData['weight'] . " " . $validatedData['weight_unit'],
+            'exc_ppn' => $validatedData['exc_ppn'],
+            'inc_ppn' => $validatedData['inc_ppn']
+        ]);
+
+        return redirect()->route('products')->with('success', 'Product updated successfully');
+    }
+
     public function EditKriteria($id)
     {
         $product = ProductVariant::with('product')->findOrFail($id);
@@ -141,5 +213,14 @@ class ProductsController extends Controller
         }
 
         return redirect()->back()->with('success', 'Kriteria discount berhasil diperbarui');
+    }
+
+    public function detailProduct($id)
+    {
+        $product = Product::with(['varian', 'discounts'])->find($id);
+        return view('pages.admin.products.detail-product', [
+            'product' => $product,
+            'kriteria' => $product->discounts
+        ]);
     }
 }

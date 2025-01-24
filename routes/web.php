@@ -39,9 +39,14 @@ Route::get('/users/{id}/activate', [UsersController::class, 'activate'])->name('
 Route::get('/users/{id}/deactivate', [UsersController::class, 'deactivate'])->name('users.deactivate');
 Route::get('/products', [ProductsController::class, 'index'])->name('products');
 
+Route::get('/products/{id}/edit', [ProductsController::class, 'edit'])->name('edit-product');
+Route::put('/products/{id}', [ProductsController::class, 'update'])->name('update-product');
+
 Route::get('/add-product', [ProductsController::class, 'create'])->name('add-product');
 Route::post('/add-product', [ProductsController::class, 'store']);
 
 Route::get('/update-kriteria/{id}', [ProductsController::class, 'EditKriteria'])->name('update-kriteria');
 Route::post('/update-kriteria/{id}', [ProductsController::class, 'UpdateKriteria']);
+
+Route::get('/detail-product/{id}', [ProductsController::class, 'detailProduct'])->name('detailProduct');
 

@@ -27,7 +27,7 @@ class AuthController extends Controller
         $request->validate([
             'nama_depan' => 'required',
             'nama_belakang' => 'required',
-            'email' => 'email|required',
+            'username' => 'required',
             'password' => 'required|confirmed',
             'jenis_akun' => 'required|in:admin,toko,konsumen',
         ]);
@@ -35,7 +35,7 @@ class AuthController extends Controller
         try {
             $user = User::create([
                 'name' => $request->nama_depan . " " . $request->nama_belakang,
-                'email' => $request->email,
+                'username' => $request->username,
                 'password' => Hash::make($request->password),
                 'role' => $request->jenis_akun,
                 'status_akun' => 'inactive'
@@ -55,11 +55,11 @@ class AuthController extends Controller
     public function masuk(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'username' => 'required|exists:users,username',
             'password' => 'required'
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('username', 'password');
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();

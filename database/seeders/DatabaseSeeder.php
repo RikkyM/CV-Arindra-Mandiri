@@ -30,14 +30,14 @@ class DatabaseSeeder extends Seeder
         $users = [
             [
                 'name' => 'admin',
-                'email' => 'admin@admin.com',
+                'username' => 'admin',
                 'password' => Hash::make('admin'),
                 'role' => 'admin',
                 'status_akun' => 'active'
             ],
             [
                 'name' => 'rikky mahendra',
-                'email' => 'rikky.mahendra54@gmail.com',
+                'username' => 'rikky32',
                 'password' => Hash::make('123123'),
                 'role' => 'konsumen',
                 'status_akun' => 'inactive'

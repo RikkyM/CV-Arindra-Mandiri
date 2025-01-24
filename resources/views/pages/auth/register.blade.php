@@ -29,12 +29,12 @@
                     <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </label>
-            <label for="email" class="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-                <span class="font-semibold">E-Mail</span>
-                <input type="email" id="email" name="email"
+            <label for="username" class="mx-auto flex w-full max-w-sm flex-col gap-1.5">
+                <span class="font-semibold">Username</span>
+                <input type="username" id="username" name="username"
                     class="rounded-sm border border-gray-300 p-2 text-sm placeholder:italic"
-                    placeholder="Alamat E-mail">
-                @error('email')
+                    placeholder="Username">
+                @error('username')
                     <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </label>

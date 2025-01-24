@@ -61,7 +61,6 @@
             <div class="mt-16 flex justify-between px-5 font-bold">
                 <p>Grand Total: </p>
                 <p>Rp. {{ number_format($grandTotal, 0) }}</p>
-                <!-- Grand total yang sudah dihitung berdasarkan subtotal after discount -->
             </div>
 
             <button type="button" onclick="sendToWhatsApp()"

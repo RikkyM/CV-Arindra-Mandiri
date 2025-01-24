@@ -71,32 +71,29 @@ class PageController extends Controller
             ->first();
 
         $grandTotal = 0;
-        $userRole = Auth::user()->role;  // Mengambil role dari akun yang login
+        $userRole = Auth::user()->role;
 
         if ($cart) {
             foreach ($cart->CartDetail as $detail) {
-                // Hitung diskon untuk produk berdasarkan user role
+
                 $discount = ProductDiscount::calculateDiscount($detail->product->id, $detail->variant->id, $detail->qty, $userRole);
 
                 if ($discount > 0) {
-                    // Harga setelah diskon: karena diskon sudah dalam bentuk desimal, tidak perlu dibagi 100 lagi
-                    $priceAfterDiscount = $detail->price * (1 - $discount); // diskon langsung dalam desimal
+
+                    $priceAfterDiscount = $detail->price * (1 - $discount);
                     $subtotalAfterDiscount = $detail->qty * $priceAfterDiscount;
 
-                    // Update detail produk
-                    $detail->discount = $discount * 100; // Konversi ke persentase untuk ditampilkan
+                    $detail->discount = $discount * 100;
                     $detail->price_after_discount = $priceAfterDiscount;
                     $detail->subtotal_after_discount = $subtotalAfterDiscount;
 
-                    // Tambahkan ke grand total
                     $grandTotal += $subtotalAfterDiscount;
                 } else {
-                    // Jika tidak ada diskon, gunakan harga normal
+
                     $detail->discount = 0;
                     $detail->price_after_discount = $detail->price;
                     $detail->subtotal_after_discount = $detail->qty * $detail->price;
 
-                    // Tambahkan ke grand total tanpa diskon
                     $grandTotal += $detail->subtotal_after_discount;
                 }
             }
@@ -105,10 +102,7 @@ class PageController extends Controller
         return view('pages.cart', [
             'cart' => $cart,
             'details' => $cart->CartDetail ?? collect(),
-            'grandTotal' => $grandTotal,  // Pass grand total to view
+            'grandTotal' => $grandTotal,
         ]);
     }
-
-
-
 }

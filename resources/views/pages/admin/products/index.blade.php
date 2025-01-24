@@ -22,12 +22,11 @@
                     <td class="capitalize">Rp. {{ $product->inc_ppn }}</td>
                     <td class="text-center">{{ $product->stock }}</td>
                     <td class="text-center">
-                        <a href="#" class="text-green-500 mr-1">Detail</a>
                         <a href="{{ route('update-kriteria', ['id' => $product->id]) }}" class="text-yellow-500 ml-1">Update</a>
                     </td>
                     <td class="text-center">
-                        <a href="#" class="rounded-md bg-blue-500 p-2 font-semibold text-white">Edit</a>
-                        <a href="#" class="rounded-md bg-green-500 p-2 font-semibold text-white">Detail</a>
+                        <a href="{{ route('edit-product', ['id' => $product->id]) }}" class="rounded-md bg-blue-500 p-2 font-semibold text-white">Edit</a>
+                        <a href="{{ route('detailProduct', ['id' => $product->id]) }}" class="rounded-md bg-green-500 p-2 font-semibold text-white">Detail</a>
                     </td>
                 </tr>
             @endforeach

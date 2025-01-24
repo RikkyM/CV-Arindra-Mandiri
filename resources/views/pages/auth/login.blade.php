@@ -23,12 +23,12 @@
                 @endif
             </div>
             <h1 class="inline-block border-b border-gray-300 pb-3 text-2xl font-bold capitalize">masuk</h1>
-            <label for="email" class="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-                <span class="font-semibold">E-Mail</span>
-                <input type="email" name="email" id="email" required
+            <label for="username" class="mx-auto flex w-full max-w-sm flex-col gap-1.5">
+                <span class="font-semibold">Username</span>
+                <input type="username" name="username" id="username" required
                     class="rounded-sm border border-gray-300 p-2 text-sm placeholder:italic"
-                    placeholder="Isi alamat e-mail">
-                @error('email')
+                    placeholder="Isi username">
+                @error('username')
                     <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </label>

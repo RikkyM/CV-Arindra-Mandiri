@@ -1,5 +1,5 @@
 <x-layouts.admin title="Kriteria">
-    <section class="flex h-[calc(100%_-_1rem)] flex-col items-center ">
+    <section class="flex h-[calc(100%_-_1rem)] flex-col items-center">
         <form action="{{ route('update-kriteria', ['id' => $product->id]) }}" method="POST"
             class="mx-auto flex w-full flex-col gap-6 rounded-lg border border-gray-300 bg-white p-5 shadow-md">
             @csrf
