@@ -93,7 +93,7 @@ class PageController extends Controller
                     $detail->discount = 0;
                     $detail->price_after_discount = $detail->price;
                     $detail->subtotal_after_discount = $detail->qty * $detail->price;
-
+                    // i
                     $grandTotal += $detail->subtotal_after_discount;
                 }
             }

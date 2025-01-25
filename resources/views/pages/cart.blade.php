@@ -31,7 +31,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <p class="text-2xl font-bold">Rp. {{ number_format($item->subtotal_after_discount, 2) }}
+                                <p class="text-2xl font-bold">Rp. {{ number_format($item->subtotal_after_discount, 0) }}
                                 </p>
                             </div>
                         </div>
@@ -47,12 +47,13 @@
                 </form>
             @endif
         </div>
+        {{-- y --}}
         <div class="flex h-auto max-h-[500px] w-72 flex-col justify-between bg-gray-300 p-5 shadow-sm">
             <h1 class="bg-gray-500 px-3 py-5 text-left text-2xl font-bold uppercase text-gray-100">ringkasan</h1>
             <div class="py-5 text-center text-lg font-bold">
                 <p>Gratis Pengiriman di atas</p>
                 <p>Rp. 10.000.000</p>
-                <p class="text-sm text-gray-500">(khusus JABODETABEK)</p>
+                <p class="text-sm text-gray-500">(khusus SUMATERA SELATAN)</p>
             </div>
             <div class="mt-5 flex justify-between px-5">
                 <p>Subtotal: </p>

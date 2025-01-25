@@ -4,7 +4,7 @@
             class="flex items-center justify-center gap-2 px-2 md:col-span-2 md:items-center md:justify-start lg:col-span-1 lg:items-start lg:justify-start">
             <a href="{{ route('home') }}" class="hidden font-bold md:inline md:text-2xl">Logo</a>
             <button class="block md:hidden">Menu</button>
-            <a href="{{ route('login') }}" class="flex size-max flex-col items-center uppercase md:hidden">
+            <a href="{{ !Auth::check() ? route('login') : '#' }}" class="flex size-max flex-col items-center uppercase md:hidden">
                 <svg class="size-7 md:size-7 xl:size-9" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M16 5c-3.855 0-7 3.145-7 7c0 2.41 1.23 4.55 3.094 5.813C8.527 19.343 6 22.883 6 27h2c0-4.43 3.57-8 8-8s8 3.57 8 8h2c0-4.117-2.527-7.656-6.094-9.188A7.024 7.024 0 0 0 23 12c0-3.855-3.145-7-7-7zm0 2c2.773 0 5 2.227 5 5s-2.227 5-5 5s-5-2.227-5-5s2.227-5 5-5z"
