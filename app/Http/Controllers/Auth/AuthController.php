@@ -71,9 +71,7 @@ class AuthController extends Controller
 
             if ($user->role === 'admin') {
                 return redirect()->route('dashboard');
-            } elseif ($user->role === 'toko') {
-                return redirect()->route('home');
-            } elseif ($user->role === 'konsumen') {
+            } elseif ($user->role === 'toko' || $user->role === 'konsumen') {
                 return redirect()->route('home');
             } else {
                 Auth::logout();
@@ -81,7 +79,7 @@ class AuthController extends Controller
             }
         }
 
-        return redirect()->back()->with('error', 'Email atau kata sandi salah');
+        return redirect()->back()->with('error', 'Username atau kata sandi salah');
     }
 
     public function logout()
