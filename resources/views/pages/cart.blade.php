@@ -20,7 +20,8 @@
                     <p class="mt-3 text-gray-400">Tambahkan produk ke keranjang untuk melanjutkan.</p>
                 </div>
             @else
-                <form id="cart-form" class="space-y-5">
+                <form id="cart-form" action="{{ route('cart.send.pdf') }}" method="POST" class="space-y-5">
+                    @csrf
                     @foreach ($details as $item)
                         <div class="flex h-56 max-h-56 w-full bg-white">
                             <img src="{{ route('image.show', $item->product->gambar_product) }}"
@@ -33,41 +34,18 @@
                                         <div class="flex items-center">
                                             <button type="button"
                                                 class="decrement-btn rounded-l-md bg-gray-200 px-3 py-1">-</button>
-                                            <input type="number" name="qty[]" value="{{ $item->qty }}"
-                                                class="w-[5ch] border border-gray-300 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                readonly>
+                                            <input type="number" name="qty[{{ $item->id }}]"
+                                                value="{{ $item->qty }}"
+                                                class="w-[5ch] border border-gray-300 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none">
                                             <button type="button"
                                                 class="increment-btn rounded-r-md bg-gray-200 px-3 py-1">+</button>
                                         </div>
                                         <p class="font-bold">Rp. {{ number_format($item->price, 0) }}</p>
                                     </div>
-                                    @if ($item->discount > 0)
-                                        <div class="text-red-500">
-                                            <p>Diskon: {{ number_format($item->discount, 0) }}%</p>
-                                            <p>Harga setelah diskon: Rp.
-                                                {{ number_format($item->price_after_discount, 0) }}</p>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="flex h-full flex-col items-end justify-between px-2 pb-2">
-                                    <p class="text-2xl font-bold">Rp.
-                                        {{ number_format($item->subtotal_after_discount, 0) }}</p>
-                                    <a href="{{ route('remove_from_cart', $item->id) }}"
-                                        class="rounded bg-red-500 px-5 py-2 font-semibold text-white">
-                                        Hapus
-                                    </a>
                                 </div>
                             </div>
                         </div>
-                        <input type="hidden" name="product[]" value="{{ $item->product->nama_product }}">
-                        <input type="hidden" name="qty[]" value="{{ $item->qty }}">
-                        <input type="hidden" name="price[]" value="{{ $item->price }}">
-                        <input type="hidden" name="subtotal[]" value="{{ $item->subtotal }}">
-                        <input type="hidden" name="price_after_discount[]" value="{{ $item->price_after_discount }}">
-                        <input type="hidden" name="discount[]" value="{{ $item->discount }}">
                     @endforeach
-                    <input type="hidden" name="nama" value="{{ Auth::user()->name }}">
-                    <input type="hidden" name="total" value="{{ $grandTotal }}">
                 </form>
             @endif
         </div>
@@ -104,15 +82,10 @@
                 </div>
             </div>
 
-            <button type="button" onclick="sendToWhatsApp()"
-                class="mt-4 rounded-sm bg-green-500 p-4 text-xl font-bold text-white">
-                Kirim ke WhatsApp
-            </button>
-
-            <a href="{{ route('cart.pdf') }}" target="_blank"
+            <button type="submit" form="cart-form"
                 class="mt-4 rounded-sm bg-gray-500 p-4 text-xl font-bold text-white">
-                Lihat PDF
-            </a>
+                Kirim PDF ke WhatsApp
+            </button>
         </div>
     </section>
 
@@ -176,7 +149,7 @@
             message += `*Total: Rp. ${total}*\n\n`;
             message += "_Terima kasih telah berbelanja di toko kami!_";
 
-            const phoneNumber = "6289690795500"; // Ganti dengan nomor WhatsApp tujuan
+            const phoneNumber = "6289690795500";
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
             window.open(whatsappUrl, '_blank');

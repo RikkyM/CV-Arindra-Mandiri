@@ -23,7 +23,8 @@ Route::controller(PageController::class)->group(function () {
     Route::post('/product/{id}', 'cartProduct');
     Route::get('/cart', 'cart')->name('cart');
     Route::get('/cart/{id}', 'removeFromCart')->name('remove_from_cart');
-    Route::get('/pdf', 'generatePDF')->name('cart.pdf');
+    Route::post('/pdf/send-pdf', 'sendPDF')->name('cart.send.pdf');
+    Route::get('/storage/pdf/{filename}', 'getPDF')->name('storage.pdf');
 });
 
 Route::controller(AuthController::class)->group(function () {

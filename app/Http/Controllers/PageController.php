@@ -9,7 +9,7 @@ use App\Models\ProductVariant;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
@@ -23,7 +23,6 @@ class PageController extends Controller
 
     public function detailProduct($id)
     {
-        // dd(ProductVariant::with('product')->where('id', $id)->first());
         return view('pages.detail-product', [
             'product' => ProductVariant::with('product')->where('id', $id)->first()
         ]);
@@ -125,30 +124,30 @@ class PageController extends Controller
     }
 
 
-    public function generatePDF()
+    public function generatePDF(Request $request)
     {
         $user = Auth::user();
         $userRole = $user->role;
         $grandTotal = 0;
 
-        // Ambil data keranjang dengan relasi yang diperlukan
         $cart = Cart::with(['CartDetail.product.discounts', 'CartDetail.variant'])
-        ->where('user_id', $user->id)
+            ->where('user_id', $user->id)
             ->first();
 
         if ($cart) {
             foreach ($cart->CartDetail as $detail) {
-                // Hitung diskon menggunakan fungsi yang sama seperti di cart()
+                $qty = $request->input('qty.' . $detail->id, $detail->qty);
+
                 $discount = ProductDiscount::calculateDiscount(
                     $detail->product->id,
                     $detail->variant->id,
-                    $detail->qty,
+                    $qty,
                     $userRole
                 );
 
                 if ($discount > 0) {
                     $priceAfterDiscount = $detail->price * (1 - $discount);
-                    $subtotalAfterDiscount = $detail->qty * $priceAfterDiscount;
+                    $subtotalAfterDiscount = $qty * $priceAfterDiscount;
 
                     $detail->discount = $discount * 100;
                     $detail->price_after_discount = $priceAfterDiscount;
@@ -158,13 +157,14 @@ class PageController extends Controller
                 } else {
                     $detail->discount = 0;
                     $detail->price_after_discount = $detail->price;
-                    $detail->subtotal_after_discount = $detail->qty * $detail->price;
+                    $detail->subtotal_after_discount = $qty * $detail->price;
                     $grandTotal += $detail->subtotal_after_discount;
                 }
+
+                $detail->qty = $qty;
             }
         }
 
-        // Generate PDF
         $pdf = PDF::loadView('pdf.invoice', [
             'user' => $user,
             'cart' => $cart,
@@ -173,6 +173,47 @@ class PageController extends Controller
         ]);
 
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->stream('invoice.pdf');
+
+        $fileName = 'invoice_' . time() . '.pdf';
+        $filePath = 'pdf/' . $fileName;
+        Storage::put($filePath, $pdf->output());
+
+        return $filePath;
+    }
+
+    public function sendPDF(Request $request)
+    {
+        $filePath = $this->generatePDF($request);
+
+        $fileUrl = route('storage.pdf', ['filename' => basename($filePath)]);
+
+        $message = "Berikut adalah link untuk mengunduh invoice Anda:\n" . $fileUrl;
+
+        $phoneNumber = "6289690795500";
+        $whatsappUrl = "https://wa.me/{$phoneNumber}?text=" . urlencode($message);
+
+        return redirect()->away($whatsappUrl);
+    }
+
+    public function getPDF($filename)
+    {
+        $filePath = 'pdf/' . $filename;
+
+        if (!Storage::exists($filePath)) {
+            abort(404, 'File not found.');
+        }
+
+        $fileContent = Storage::get($filePath);
+
+        $mimeType = Storage::mimeType($filePath);
+
+        return new Response(
+            $fileContent,
+            200,
+            [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ]
+        );
     }
 }

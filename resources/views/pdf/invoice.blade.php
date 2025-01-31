@@ -78,28 +78,24 @@
             </thead>
             <tbody>
                 @foreach ($details as $item)
-                    <tr>
-                        <td style="border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
-                            {{ $item->product->nama_product }} {{ $item->variant->variant }}
-                        </td>
-                        <td
-                            style="text-align: center; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
-                            {{ $item->qty }}
-                        </td>
-                        <td
-                            style="text-align: right; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
-                            {{ number_format($item->price, 0, ',', '.') }}
-                        </td>
-                        <td
-                            style="text-align: center; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
-                            {{ number_format($item->discount, 0) }}%
-                        </td>
-                        <td
-                            style="text-align: right; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
-                            {{ number_format($item->subtotal_after_discount, 0, ',', '.') }}
-                        </td>
-                    </tr>
-                @endforeach
+    <tr>
+        <td style="border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
+            {{ $item->product->nama_product }} {{ $item->variant->variant }}
+        </td>
+        <td style="text-align: center; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
+            {{ $item->qty }} <!-- Qty yang sudah di-update -->
+        </td>
+        <td style="text-align: right; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
+            {{ number_format($item->price, 0, ',', '.') }}
+        </td>
+        <td style="text-align: center; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
+            {{ number_format($item->discount, 0) }}%
+        </td>
+        <td style="text-align: right; border-right: 1px solid #000; border-left: 1px solid #000; padding: 5px;">
+            {{ number_format($item->subtotal_after_discount, 0, ',', '.') }}
+        </td>
+    </tr>
+@endforeach
                 <tr style="border-top: 1px solid #000;">
                     <td style="border-left: 1px solid #FFF;"></td>
                     <td></td>
