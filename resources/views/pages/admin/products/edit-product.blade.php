@@ -1,19 +1,27 @@
-<!-- pages/admin/products/edit-product.blade.php -->
 <x-layouts.admin title="Edit Produk">
     <section class="mx-auto flex h-full max-w-screen-sm items-center justify-center">
-        <form action="{{ route('update-product', $productVariant->id) }}" method="POST"
-            class="mb-3 flex w-full max-w-xs flex-col gap-3 border border-gray-300 bg-white p-3">
+        <form action="{{ route('update-product', $productVariant->id) }}" method="POST" enctype="multipart/form-data"
+            class="mb-3 flex w-full max-w-sm flex-col gap-3 border border-gray-300 bg-white p-3">
             @csrf
             @method('PUT')
             <h1 class="text-2xl font-semibold">Edit Produk</h1>
-            
+
             <label for="nama_produk" class="flex flex-col">
                 <span class="text-sm">Nama Produk</span>
                 <input type="text" id="nama_produk" name="nama_produk"
-                    class="rounded-sm border border-gray-300 p-2 text-sm" 
-                    value="{{ $productVariant->product->nama_product }}"
-                    placeholder="Nama produk">
+                    class="rounded-sm border border-gray-300 p-2 text-sm"
+                    value="{{ $productVariant->product->nama_product }}" placeholder="Nama produk">
                 @error('nama_produk')
+                    <p class="text-xs text-red-500">{{ $message }}</p>
+                @enderror
+            </label>
+
+            <label for="image" class="flex flex-col">
+                <span class="text-sm">Product Image</span>
+                <input type="file" id="image" name="image"
+                    class="rounded-sm border border-gray-300 p-2 text-sm" accept="image/jpeg,image/png,image/jpg">
+                <p class="text-xs">Image: {{ $productVariant->product->gambar_product }}</p>
+                @error('image')
                     <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </label>
@@ -21,8 +29,7 @@
             <label for="variant" class="flex flex-col">
                 <span class="text-sm">Variant</span>
                 <input type="text" id="variant" name="variant"
-                    class="rounded-sm border border-gray-300 p-2 text-sm" 
-                    value="{{ $productVariant->variant }}"
+                    class="rounded-sm border border-gray-300 p-2 text-sm" value="{{ $productVariant->variant }}"
                     placeholder="Variant">
                 @error('variant')
                     <p class="text-xs text-red-500">{{ $message }}</p>
@@ -32,8 +39,7 @@
             <label for="stock" class="flex flex-col">
                 <span class="text-sm">Stock</span>
                 <input type="number" id="stock" name="stock" required
-                    class="rounded-sm border border-gray-300 p-2 text-sm" 
-                    value="{{ $productVariant->stock }}"
+                    class="rounded-sm border border-gray-300 p-2 text-sm" value="{{ $productVariant->stock }}"
                     placeholder="Stock">
                 @error('stock')
                     <p class="text-xs text-red-500">{{ $message }}</p>
@@ -49,8 +55,7 @@
                         $weightUnit = $weightParts[1] ?? '';
                     @endphp
                     <input type="text" id="weight" name="weight" required
-                        class="flex-1 rounded-sm border border-gray-300 p-2 text-sm" 
-                        value="{{ $weightValue }}"
+                        class="flex-1 rounded-sm border border-gray-300 p-2 text-sm" value="{{ $weightValue }}"
                         placeholder="Weight">
                     <label for="weight_unit" class="h-full">
                         <select name="weight_unit" id="weight_unit" required
@@ -71,8 +76,7 @@
             <label for="exc_ppn" class="flex flex-col">
                 <span class="text-sm">Exc PPN</span>
                 <input type="number" id="exc_ppn" name="exc_ppn" required
-                    class="rounded-sm border border-gray-300 p-2 text-sm" 
-                    value="{{ $productVariant->exc_ppn }}"
+                    class="rounded-sm border border-gray-300 p-2 text-sm" value="{{ $productVariant->exc_ppn }}"
                     placeholder="Exc PPN">
                 @error('exc_ppn')
                     <p class="text-xs text-red-500">{{ $message }}</p>
@@ -82,8 +86,7 @@
             <label for="inc_ppn" class="flex flex-col">
                 <span class="text-sm">Inc PPN</span>
                 <input type="number" id="inc_ppn" name="inc_ppn" required
-                    class="rounded-sm border border-gray-300 p-2 text-sm" 
-                    value="{{ $productVariant->inc_ppn }}"
+                    class="rounded-sm border border-gray-300 p-2 text-sm" value="{{ $productVariant->inc_ppn }}"
                     placeholder="Inc PPN">
                 @error('inc_ppn')
                     <p class="text-xs text-red-500">{{ $message }}</p>
@@ -91,7 +94,7 @@
             </label>
 
             <div class="w-full">
-                <button type="submit" class="w-full bg-green-500 p-2 font-semibold text-white">Update</button>
+                <button type="submit" class="w-full bg-blue-500 p-2 rounded font-semibold text-white">Ubah Data Product</button>
             </div>
         </form>
     </section>

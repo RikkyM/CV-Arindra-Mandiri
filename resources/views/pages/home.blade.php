@@ -47,10 +47,27 @@
             </div>
             <div class="grid grid-cols-3 grid-rows-1 gap-4 py-3 lg:grid-cols-6">
                 @foreach ($products as $index => $product)
-                    <a href="{{ route('detail_product', ['id' => $product->id]) }}"
-                        class="flex aspect-square items-center justify-center bg-white capitalize text-xs">
-                        {{ $product->product->nama_product }} {{ $product->variant }}
-                    </a>
+                    <div class="border bg-white shadow-md border-gray-300">
+                        <a href="{{ route('detail_product', ['id' => $product->id]) }}"
+                            class="group relative flex aspect-square overflow-hidden shadow-sm transition-shadow hover:shadow-md">
+                            @if ($product->product->gambar_product)
+                                <img class="h-full w-full object-fill transition-transform duration-300 group-hover:scale-105"
+                                    src="{{ route('image.show', $product->product->gambar_product) }}"
+                                    alt="{{ $product->product->nama_product }}">
+                            @endif
+                        </a>
+                        <div class="flex flex-col gap-3 p-2.5 mb-5">
+                            <div class="flex flex-col">
+                                <a href="{{ route('detail_product', ['id' => $product->id]) }}"
+                                    class="text-xl font-bold uppercase hover:text-[#F47B29] flex w-max">
+                                    {{ $product->product->nama_product }}
+                                </a>
+                                <p class="text-sm font-semibold">{{ $product->weight }}</p>
+                            </div>
+                            <p class="font-bold text-xl">Rp. {{ number_format($product->inc_ppn, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+
                 @endforeach
             </div>
         </div>
