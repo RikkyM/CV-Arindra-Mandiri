@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartDetail;
-use App\Models\Product;
 use App\Models\ProductDiscount;
 use App\Models\ProductVariant;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
@@ -67,6 +69,10 @@ class PageController extends Controller
 
     public function cart()
     {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
         $cart = Cart::with(['CartDetail.product.discounts', 'CartDetail.variant'])
             ->where('user_id', Auth::user()->id)
             ->first();
@@ -116,5 +122,57 @@ class PageController extends Controller
             return redirect()->route('cart')->with('success', 'Item berhasil dihapus dari keranjang.');
         }
         return redirect()->route('cart')->with('error', 'Item tidak ditemukan.');
+    }
+
+
+    public function generatePDF()
+    {
+        $user = Auth::user();
+        $userRole = $user->role;
+        $grandTotal = 0;
+
+        // Ambil data keranjang dengan relasi yang diperlukan
+        $cart = Cart::with(['CartDetail.product.discounts', 'CartDetail.variant'])
+        ->where('user_id', $user->id)
+            ->first();
+
+        if ($cart) {
+            foreach ($cart->CartDetail as $detail) {
+                // Hitung diskon menggunakan fungsi yang sama seperti di cart()
+                $discount = ProductDiscount::calculateDiscount(
+                    $detail->product->id,
+                    $detail->variant->id,
+                    $detail->qty,
+                    $userRole
+                );
+
+                if ($discount > 0) {
+                    $priceAfterDiscount = $detail->price * (1 - $discount);
+                    $subtotalAfterDiscount = $detail->qty * $priceAfterDiscount;
+
+                    $detail->discount = $discount * 100;
+                    $detail->price_after_discount = $priceAfterDiscount;
+                    $detail->subtotal_after_discount = $subtotalAfterDiscount;
+
+                    $grandTotal += $subtotalAfterDiscount;
+                } else {
+                    $detail->discount = 0;
+                    $detail->price_after_discount = $detail->price;
+                    $detail->subtotal_after_discount = $detail->qty * $detail->price;
+                    $grandTotal += $detail->subtotal_after_discount;
+                }
+            }
+        }
+
+        // Generate PDF
+        $pdf = PDF::loadView('pdf.invoice', [
+            'user' => $user,
+            'cart' => $cart,
+            'details' => $cart ? $cart->CartDetail : collect(),
+            'grandTotal' => $grandTotal
+        ]);
+
+        $pdf->setPaper('A4', 'landscape');
+        return $pdf->stream('invoice.pdf');
     }
 }

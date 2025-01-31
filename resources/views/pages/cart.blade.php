@@ -24,7 +24,7 @@
                     @foreach ($details as $item)
                         <div class="flex h-56 max-h-56 w-full bg-white">
                             <img src="{{ route('image.show', $item->product->gambar_product) }}"
-                                class="flex aspect-square h-full items-center justify-center border border-black text-2xl font-semibold"/>
+                                class="flex aspect-square h-full items-center justify-center border border-black text-2xl font-semibold" />
                             <div class="flex w-full justify-between px-5 py-4">
                                 <div class="flex w-max flex-col justify-between gap-2">
                                     <p class="text-2xl font-bold capitalize">{{ $item->product->nama_product }}
@@ -79,19 +79,40 @@
                 <p>Rp. 10.000.000</p>
                 <p class="text-sm text-gray-500">(khusus SUMATERA SELATAN)</p>
             </div>
-            <div class="mt-5 flex justify-between px-5">
-                @if ($cart)
-                    <p>Subtotal: </p>
-                    <p>Rp. {{ number_format($cart->total, 0) }}</p>
-                @endif
-            </div>
-            <div class="mt-16 flex justify-between px-5 font-bold">
-                <p>Grand Total: </p>
-                <p>Rp. {{ number_format($grandTotal, 0) }}</p>
+            <div class="mt-5 space-y-2">
+                <div class="flex justify-between px-5">
+                    <p>Total Sub:</p>
+                    <p>Rp. {{ number_format($grandTotal, 0, ',', '.') }}</p>
+                </div>
+                @php
+                    $totalDiscount = 0;
+                    foreach ($details as $detail) {
+                        $totalDiscount += $detail->price * $detail->qty * ($detail->discount / 100);
+                    }
+                @endphp
+                <div class="flex justify-between px-5">
+                    <p>Total Diskon:</p>
+                    <p>Rp. {{ number_format($totalDiscount, 0, ',', '.') }}</p>
+                </div>
+                <div class="flex justify-between px-5">
+                    <p>PPN:</p>
+                    <p>Rp. {{ number_format($grandTotal * 0.12, 0, ',', '.') }}</p>
+                </div>
+                <div class="mt-8 flex justify-between px-5 font-bold">
+                    <p>Total Faktur:</p>
+                    <p>Rp. {{ number_format($grandTotal + $grandTotal * 0.12, 0, ',', '.') }}</p>
+                </div>
             </div>
 
             <button type="button" onclick="sendToWhatsApp()"
-                class="mt-4 rounded-sm bg-green-500 p-4 text-xl font-bold text-white">Kirim ke WhatsApp</button>
+                class="mt-4 rounded-sm bg-green-500 p-4 text-xl font-bold text-white">
+                Kirim ke WhatsApp
+            </button>
+
+            <a href="{{ route('cart.pdf') }}" target="_blank"
+                class="mt-4 rounded-sm bg-gray-500 p-4 text-xl font-bold text-white">
+                Lihat PDF
+            </a>
         </div>
     </section>
 

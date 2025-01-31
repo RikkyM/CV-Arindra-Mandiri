@@ -21,8 +21,9 @@ Route::controller(PageController::class)->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/product/{id}', 'detailProduct')->name('detail_product');
     Route::post('/product/{id}', 'cartProduct');
-    Route::get('cart', 'cart')->name('cart');
+    Route::get('/cart', 'cart')->name('cart');
     Route::get('/cart/{id}', 'removeFromCart')->name('remove_from_cart');
+    Route::get('/pdf', 'generatePDF')->name('cart.pdf');
 });
 
 Route::controller(AuthController::class)->group(function () {
@@ -41,6 +42,9 @@ Route::controller(UsersController::class)->group(function () {
     Route::get('/users', 'index')->name('users');
     Route::get('/users/{id}/change-status', 'changeStatus')->name('change_status_user');
     Route::get('/users/add-user', 'create')->name('add-user');
+    Route::post('/users/add-user', 'store');
+    Route::get('/users/edit-user/{id}', 'edit')->name('edit-user');
+    Route::put('/users/edit-user/{id}', 'update');
 });
 
 Route::controller(ProductsController::class)->group(function () {
@@ -56,8 +60,8 @@ Route::controller(ProductsController::class)->group(function () {
     Route::get('/add-product', 'create')->name('add-product');
     Route::post('/add-product', 'store');
 
-    Route::get('/update-kriteria/{id}', 'EditKriteria')->name('update-kriteria');
-    Route::post('/update-kriteria/{id}', 'UpdateKriteria');
+    Route::get('/edit-kriteria/{id}', 'EditKriteria')->name('update-kriteria');
+    Route::post('/edit-kriteria/{id}', 'UpdateKriteria');
 
     Route::get('/detail-product/{id}', 'detailProduct')->name('detailProduct');
 });

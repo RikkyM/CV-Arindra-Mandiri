@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'rikky mahendra',
-                'username' => 'rikky32',
+                'username' => '85155407399',
                 'password' => Hash::make('123123'),
                 'role' => 'konsumen',
                 'status_akun' => 'inactive'

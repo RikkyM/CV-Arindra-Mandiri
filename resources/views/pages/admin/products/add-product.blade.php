@@ -87,7 +87,8 @@
             </label>
 
             <div class="w-full">
-                <button type="submit" class="w-full bg-green-500 p-2 font-semibold text-white">Tambahkan</button>
+                <button type="submit"
+                    class="w-full rounded bg-green-500 p-2 font-semibold text-white">Tambahkan</button>
             </div>
         </form>
     </section>

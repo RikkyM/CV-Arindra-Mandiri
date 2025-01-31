@@ -94,7 +94,7 @@
             </label>
 
             <div class="w-full">
-                <button type="submit" class="w-full bg-green-500 p-2 font-semibold text-white">Update</button>
+                <button type="submit" class="w-full bg-blue-500 p-2 rounded font-semibold text-white">Ubah Data Product</button>
             </div>
         </form>
     </section>
