@@ -1,4 +1,17 @@
 <x-components.layouts.users title="Cart">
+    <div class="container mx-auto mt-5 flex gap-8 px-5">
+        @if (session('success'))
+            <div class="rounded bg-green-500 p-2 font-semibold text-white">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="rounded bg-red-500 p-2 font-semibold text-white">
+                {{ session('error') }}
+            </div>
+        @endif
+    </div>
     <section class="container mx-auto mt-5 flex gap-8 px-5">
         <div class="flex flex-1 flex-col gap-5">
             @if ($details->isEmpty())
@@ -10,29 +23,40 @@
                 <form id="cart-form" class="space-y-5">
                     @foreach ($details as $item)
                         <div class="flex h-56 max-h-56 w-full bg-white">
-                            <div
-                                class="flex aspect-square h-full items-center justify-center border border-black text-2xl font-semibold">
-                                Gambar
-                            </div>
+                            <img src="{{ route('image.show', $item->product->gambar_product) }}"
+                                class="flex aspect-square h-full items-center justify-center border border-black text-2xl font-semibold"/>
                             <div class="flex w-full justify-between px-5 py-4">
                                 <div class="flex w-max flex-col justify-between gap-2">
                                     <p class="text-2xl font-bold capitalize">{{ $item->product->nama_product }}
                                         {{ $item->variant->variant }}</p>
                                     <div class="flex w-full items-center gap-10">
-                                        <p class="font-semibold">Qty: {{ $item->qty }}</p>
+                                        <div class="flex items-center">
+                                            <button type="button"
+                                                class="decrement-btn rounded-l-md bg-gray-200 px-3 py-1">-</button>
+                                            <input type="number" name="qty[]" value="{{ $item->qty }}"
+                                                class="w-[5ch] border border-gray-300 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                                readonly>
+                                            <button type="button"
+                                                class="increment-btn rounded-r-md bg-gray-200 px-3 py-1">+</button>
+                                        </div>
                                         <p class="font-bold">Rp. {{ number_format($item->price, 0) }}</p>
                                     </div>
                                     @if ($item->discount > 0)
                                         <div class="text-red-500">
                                             <p>Diskon: {{ number_format($item->discount, 0) }}%</p>
-                                            <!-- Menampilkan diskon dalam persen -->
                                             <p>Harga setelah diskon: Rp.
                                                 {{ number_format($item->price_after_discount, 0) }}</p>
                                         </div>
                                     @endif
                                 </div>
-                                <p class="text-2xl font-bold">Rp. {{ number_format($item->subtotal_after_discount, 0) }}
-                                </p>
+                                <div class="flex h-full flex-col items-end justify-between px-2 pb-2">
+                                    <p class="text-2xl font-bold">Rp.
+                                        {{ number_format($item->subtotal_after_discount, 0) }}</p>
+                                    <a href="{{ route('remove_from_cart', $item->id) }}"
+                                        class="rounded bg-red-500 px-5 py-2 font-semibold text-white">
+                                        Hapus
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <input type="hidden" name="product[]" value="{{ $item->product->nama_product }}">
@@ -56,8 +80,10 @@
                 <p class="text-sm text-gray-500">(khusus SUMATERA SELATAN)</p>
             </div>
             <div class="mt-5 flex justify-between px-5">
-                <p>Subtotal: </p>
-                <p>Rp. {{ number_format($cart->total, 0) }}</p>
+                @if ($cart)
+                    <p>Subtotal: </p>
+                    <p>Rp. {{ number_format($cart->total, 0) }}</p>
+                @endif
             </div>
             <div class="mt-16 flex justify-between px-5 font-bold">
                 <p>Grand Total: </p>
@@ -70,11 +96,38 @@
     </section>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const incrementButtons = document.querySelectorAll('.increment-btn');
+            const decrementButtons = document.querySelectorAll('.decrement-btn');
+
+            incrementButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    let value = parseInt(input.value, 10);
+                    value = isNaN(value) ? 0 : value;
+                    value++;
+                    input.value = value;
+                });
+            });
+
+            decrementButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.nextElementSibling;
+                    let value = parseInt(input.value, 10);
+                    value = isNaN(value) ? 0 : value;
+                    if (value > 1) {
+                        value--;
+                        input.value = value;
+                    }
+                });
+            });
+        });
+
         function sendToWhatsApp() {
             const form = document.getElementById('cart-form');
             const formData = new FormData(form);
 
-            const nama = formData.getAll('nama');
+            const nama = formData.get('nama');
             const products = formData.getAll('product[]');
             const qtys = formData.getAll('qty[]');
             const prices = formData.getAll('price[]');
@@ -102,7 +155,7 @@
             message += `*Total: Rp. ${total}*\n\n`;
             message += "_Terima kasih telah berbelanja di toko kami!_";
 
-            const phoneNumber = "6289690795500";
+            const phoneNumber = "6289690795500"; // Ganti dengan nomor WhatsApp tujuan
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
             window.open(whatsappUrl, '_blank');

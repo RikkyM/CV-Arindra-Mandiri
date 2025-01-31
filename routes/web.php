@@ -17,11 +17,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [PageController::class, 'home'])->name('home');
-Route::get('/product/{id}', [PageController::class, 'detailProduct'])->name('detail_product');
-Route::post('/product/{id}', [PageController::class, 'cartProduct']);
-Route::get('cart', [PageController::class, 'cart'])->name('cart');
-
+Route::controller(PageController::class)->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('/product/{id}', 'detailProduct')->name('detail_product');
+    Route::post('/product/{id}', 'cartProduct');
+    Route::get('cart', 'cart')->name('cart');
+    Route::get('/cart/{id}', 'removeFromCart')->name('remove_from_cart');
+});
 
 Route::controller(AuthController::class)->group(function () {
     Route::get('/register', 'register')->name('register');
@@ -34,19 +36,28 @@ Route::controller(AuthController::class)->group(function () {
 Route::get('/dashboard', function () {
     return view('pages.admin.dashboard');
 })->name('dashboard');
-Route::get('/users', [UsersController::class, 'index'])->name('users');
-Route::get('/users/{id}/activate', [UsersController::class, 'activate'])->name('users.activate');
-Route::get('/users/{id}/deactivate', [UsersController::class, 'deactivate'])->name('users.deactivate');
-Route::get('/products', [ProductsController::class, 'index'])->name('products');
 
-Route::get('/products/{id}/edit', [ProductsController::class, 'edit'])->name('edit-product');
-Route::put('/products/{id}', [ProductsController::class, 'update'])->name('update-product');
+Route::controller(UsersController::class)->group(function () {
+    Route::get('/users', 'index')->name('users');
+    Route::get('/users/{id}/change-status', 'changeStatus')->name('change_status_user');
+    Route::get('/users/add-user', 'create')->name('add-user');
+});
 
-Route::get('/add-product', [ProductsController::class, 'create'])->name('add-product');
-Route::post('/add-product', [ProductsController::class, 'store']);
+Route::controller(ProductsController::class)->group(function () {
+    Route::get('/products', 'index')->name('products');
 
-Route::get('/update-kriteria/{id}', [ProductsController::class, 'EditKriteria'])->name('update-kriteria');
-Route::post('/update-kriteria/{id}', [ProductsController::class, 'UpdateKriteria']);
+    Route::get('image/{path}', 'show')->where('path', '.*')->name('image.show');
+    // Route::get('/product-image/{id}', 'showImage'])
+    //     ->name('product.image');
 
-Route::get('/detail-product/{id}', [ProductsController::class, 'detailProduct'])->name('detailProduct');
+    Route::get('/products/{id}/edit', 'edit')->name('edit-product');
+    Route::put('/products/{id}', 'update')->name('update-product');
 
+    Route::get('/add-product', 'create')->name('add-product');
+    Route::post('/add-product', 'store');
+
+    Route::get('/update-kriteria/{id}', 'EditKriteria')->name('update-kriteria');
+    Route::post('/update-kriteria/{id}', 'UpdateKriteria');
+
+    Route::get('/detail-product/{id}', 'detailProduct')->name('detailProduct');
+});

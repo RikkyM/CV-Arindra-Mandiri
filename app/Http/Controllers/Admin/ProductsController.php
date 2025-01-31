@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\ProductDiscount;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductsController extends Controller
 {
@@ -15,6 +17,31 @@ class ProductsController extends Controller
         return view('pages.admin.products.index', [
             'products' => ProductVariant::with('product')->get(),
         ]);
+    }
+
+    public function show($path)
+    {
+        if (!Storage::exists($path)) {
+            abort(404);
+        }
+
+        $file = Storage::get($path);
+        $type = Storage::mimeType($path);
+
+        return response($file)
+            ->header('Content-Type', $type)
+            ->header('Cache-Control', 'public, max-age=86400');
+    }
+
+    public function showImage($id)
+    {
+        $productVariant = ProductVariant::findOrFail($id);
+
+        if (!$productVariant->image || !Storage::exists($productVariant->image)) {
+            abort(404);
+        }
+
+        return response()->file(Storage::path($productVariant->image));
     }
 
     public function create()
@@ -63,11 +90,16 @@ class ProductsController extends Controller
             'weight' => 'required|integer',
             'weight_unit' => 'required',
             'exc_ppn' => 'required|integer',
-            'inc_ppn' => 'required|integer'
+            'inc_ppn' => 'required|integer',
+            'image' => 'image|mimes:jpeg,png,jpg'
         ], [
             'nama_produk.unique' => 'Product name already exists.',
             'product_name.required_without' => 'Either select an existing product or create a new one.'
         ]);
+
+        $file = $request->file('image');
+        $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $imagePath = $file->storeAs('products', $fileName);
 
         if (!empty($validatedData['product_name'])) {
             $productName = strtolower($validatedData['product_name']);
@@ -78,7 +110,8 @@ class ProductsController extends Controller
 
             if (!$product) {
                 $product = Product::create([
-                    'nama_product' => $productName
+                    'nama_product' => $productName,
+                    'gambar_product' => $imagePath
                 ]);
             }
         }
@@ -89,7 +122,7 @@ class ProductsController extends Controller
             'stock' => $validatedData['stock'],
             'weight' => $validatedData['weight'] . " " . $validatedData['weight_unit'],
             'exc_ppn' => $validatedData['exc_ppn'],
-            'inc_ppn' => $validatedData['inc_ppn']
+            'inc_ppn' => $validatedData['inc_ppn'],
         ]);
 
         return redirect()->route('products');
@@ -107,7 +140,7 @@ class ProductsController extends Controller
     {
         $validatedData = $request->validate([
             'nama_produk' => [
-                'nullable',
+                'required',
                 function ($attribute, $value, $fail) use ($id) {
                     if (!empty($value)) {
                         $productVariant = ProductVariant::findOrFail($id);
@@ -122,7 +155,7 @@ class ProductsController extends Controller
                 }
             ],
             'variant' => [
-                'nullable',
+                'required',
                 function ($attribute, $value, $fail) use ($id) {
                     $productVariant = ProductVariant::findOrFail($id);
                     $existingVariant = ProductVariant::where('product_id', $productVariant->product_id)
@@ -135,36 +168,47 @@ class ProductsController extends Controller
                     }
                 }
             ],
-            'stock' => 'required|integer',
-            'weight' => 'required|integer',
-            'weight_unit' => 'required',
-            'exc_ppn' => 'required|integer',
-            'inc_ppn' => 'required|integer'
+            'stock' => 'required|integer|min:0',
+            'weight' => 'required|numeric|min:0',
+            'weight_unit' => 'required|in:GR,KG,JAR,PAIL',
+            'exc_ppn' => 'required|integer|min:0',
+            'inc_ppn' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg'
         ]);
 
-        // Find the existing product variant
-        $productVariant = ProductVariant::findOrFail($id);
+        try {
+            $productVariant = ProductVariant::findOrFail($id);
+            $product = $productVariant->product;
 
-        // Update product name if changed
-        $product = $productVariant->product;
-        if (
-            !empty($validatedData['nama_produk']) &&
-            strtolower($product->nama_product) !== strtolower($validatedData['nama_produk'])
-        ) {
+            if ($request->hasFile('image')) {
+                if ($product->gambar_product) {
+                    Storage::delete($product->gambar_product);
+                }
+
+                $file = $request->file('image');
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $imagePath = $file->storeAs('products', $fileName);
+
+                $product->gambar_product = $imagePath;
+            }
+
             $product->nama_product = strtolower($validatedData['nama_produk']);
             $product->save();
+
+            $productVariant->update([
+                'variant' => strtolower($validatedData['variant']),
+                'stock' => $validatedData['stock'],
+                'weight' => $validatedData['weight'] . " " . $validatedData['weight_unit'],
+                'exc_ppn' => $validatedData['exc_ppn'],
+                'inc_ppn' => $validatedData['inc_ppn']
+            ]);
+
+            return redirect()->route('products')->with('success', 'Product updated successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update product. Please try again.']);
         }
-
-        // Update product variant details
-        $productVariant->update([
-            'variant' => $validatedData['variant'],
-            'stock' => $validatedData['stock'],
-            'weight' => $validatedData['weight'] . " " . $validatedData['weight_unit'],
-            'exc_ppn' => $validatedData['exc_ppn'],
-            'inc_ppn' => $validatedData['inc_ppn']
-        ]);
-
-        return redirect()->route('products')->with('success', 'Product updated successfully');
     }
 
     public function EditKriteria($id)

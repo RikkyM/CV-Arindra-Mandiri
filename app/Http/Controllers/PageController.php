@@ -15,12 +15,13 @@ class PageController extends Controller
     public function home()
     {
         return view('pages.home', [
-            'products' => ProductVariant::all()
+            'products' => ProductVariant::with('product')->get()
         ]);
     }
 
     public function detailProduct($id)
     {
+        // dd(ProductVariant::with('product')->where('id', $id)->first());
         return view('pages.detail-product', [
             'product' => ProductVariant::with('product')->where('id', $id)->first()
         ]);
@@ -104,5 +105,16 @@ class PageController extends Controller
             'details' => $cart->CartDetail ?? collect(),
             'grandTotal' => $grandTotal,
         ]);
+    }
+
+    public function removeFromCart($id)
+    {
+        $cartProduct = CartDetail::find($id);
+
+        if ($cartProduct) {
+            $cartProduct->delete();
+            return redirect()->route('cart')->with('success', 'Item berhasil dihapus dari keranjang.');
+        }
+        return redirect()->route('cart')->with('error', 'Item tidak ditemukan.');
     }
 }

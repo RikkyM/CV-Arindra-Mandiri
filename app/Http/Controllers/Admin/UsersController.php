@@ -10,26 +10,32 @@ class UsersController extends Controller
 {
     public function index()
     {
-        return view('pages.admin.users', [
+        return view('pages.admin.users.index', [
             'users' => User::all()
         ]);
     }
 
-    public function activate($id)
+    public function changeStatus($id)
     {
         $user = User::findOrFail($id);
-        $user->status_akun = 'active';
+
+        if ($user->status_akun == 'inactive') {
+            $user->status_akun = 'active';
+        } else {
+            $user->status_akun = 'inactive';
+        }
         $user->save();
 
         return redirect()->back();
     }
 
-    public function deactivate($id)
+    public function create()
     {
-        $user = User::findOrFail($id);
-        $user->status_akun = 'inactive';
-        $user->save();
+        return view('pages.admin.users.add-user');
+    }
 
-        return redirect()->back();
+    public function store(Request $request)
+    {
+        dd($request->all());
     }
 }

@@ -10,7 +10,7 @@ class Product extends Model
     use HasFactory;
 
     protected $table = 'products';
-    protected $fillable = ['nama_product', 'slug', 'stock', 'price'];
+    protected $fillable = ['nama_product', 'gambar_product'];
 
     public function variant()
     {

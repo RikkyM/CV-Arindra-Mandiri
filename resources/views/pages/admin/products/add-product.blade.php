@@ -1,6 +1,6 @@
 <x-layouts.admin title="Tambah Produk">
     <section class="mx-auto flex h-full max-w-screen-sm items-center justify-center">
-        <form action="{{ route('add-product') }}" method="POST"
+        <form action="{{ route('add-product') }}" method="POST" enctype="multipart/form-data"
             class="mb-3 flex w-full max-w-xs flex-col gap-3 border border-gray-300 bg-white p-3">
             @csrf
             <h1 class="text-2xl font-semibold">Tambah Produk</h1>
@@ -25,6 +25,14 @@
                 @enderror
             </label>
             <div class="my-3 border border-gray-300"></div>
+            <label for="image" class="flex flex-col">
+                <span class="text-sm">Product Image <span class="text-red-500">*</span></span>
+                <input type="file" id="image" name="image" accept="image/*" required
+                    class="rounded-sm border border-gray-300 p-2 text-sm">
+                @error('image')
+                    <p class="text-xs text-red-500">{{ $message }}</p>
+                @enderror
+            </label>
             <label for="variant" class="flex flex-col">
                 <span class="text-sm">Variant</span>
                 <input type="text" id="variant" name="variant"

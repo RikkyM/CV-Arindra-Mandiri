@@ -44,8 +44,8 @@
             <div class="w-full">
                 <button type="submit"
                     class="w-full rounded-md bg-teal-500 p-2 text-lg font-bold text-white">Masuk</button>
-                <p class="mt-2 capitalize">belum punya akun ? <a href="{{ route('register') }}"
-                        class="text-blue-500 underline">daftar disini</a></p>
+                {{-- <p class="mt-2 capitalize">belum punya akun ? <a href="{{ route('register') }}"
+                        class="text-blue-500 underline">daftar disini</a></p> --}}
             </div>
         </form>
     </section>
