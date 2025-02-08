@@ -31,7 +31,11 @@ class PageController extends Controller
 
     public function cartProduct($id, Request $request)
     {
+
+        if (!Auth::user()) return redirect()->route('login');
+
         $cart = Cart::where('user_id', Auth::user()->id)->first();
+
         $product = ProductVariant::with('product')->where('id', $id)->first();
 
         $detailCart = CartDetail::where('cart_id', $cart->id)
@@ -129,11 +133,13 @@ class PageController extends Controller
     {
         $user = Auth::user();
         $userRole = $user->role;
-        $grandTotal = 0;
+        $totalBeforeDiscount = 0;  // New variable for total before discount
+        $totalDiscountAmount = 0;  // Total discount amount
+        $grandTotal = 0;          // Total after discounts
 
         $cart = Cart::with(['CartDetail.product.discounts', 'CartDetail.variant'])
         ->where('user_id', $user->id)
-            ->first();
+        ->first();
 
         if ($cart) {
             $filteredDetails = collect();
@@ -144,6 +150,11 @@ class PageController extends Controller
                 if ($qty <= 0) {
                     continue;
                 }
+
+                // Calculate subtotal before discount
+                $subtotalBeforeDiscount = $qty * $detail->price;
+                $totalBeforeDiscount += $subtotalBeforeDiscount;  // Add to total before discount
+                $detail->subtotal_before_discount = $subtotalBeforeDiscount;
 
                 $discount = ProductDiscount::calculateDiscount(
                     $detail->product->id,
@@ -156,6 +167,10 @@ class PageController extends Controller
                     $priceAfterDiscount = $detail->price * (1 - $discount);
                     $subtotalAfterDiscount = $qty * $priceAfterDiscount;
 
+                    // Calculate individual item discount amount
+                    $itemDiscountAmount = $subtotalBeforeDiscount - $subtotalAfterDiscount;
+                    $totalDiscountAmount += $itemDiscountAmount;
+
                     $detail->discount = $discount * 100;
                     $detail->price_after_discount = $priceAfterDiscount;
                     $detail->subtotal_after_discount = $subtotalAfterDiscount;
@@ -164,8 +179,8 @@ class PageController extends Controller
                 } else {
                     $detail->discount = 0;
                     $detail->price_after_discount = $detail->price;
-                    $detail->subtotal_after_discount = $qty * $detail->price;
-                    $grandTotal += $detail->subtotal_after_discount;
+                    $detail->subtotal_after_discount = $subtotalBeforeDiscount;
+                    $grandTotal += $subtotalBeforeDiscount;
                 }
 
                 $detail->qty = $qty;
@@ -189,6 +204,8 @@ class PageController extends Controller
                 'user' => $user,
                 'cart' => $cart,
                 'details' => $filteredDetails,
+                'totalBeforeDiscount' => $totalBeforeDiscount,
+                'totalDiscountAmount' => $totalDiscountAmount,
                 'grandTotal' => $grandTotal,
                 'invoiceNumber' => $invoiceNumber,
                 'orderNumber' => $orderNumber
@@ -214,7 +231,6 @@ class PageController extends Controller
 
         return back()->with('error', 'Cart is empty');
     }
-
 
     public function sendPDF(Request $request)
     {
