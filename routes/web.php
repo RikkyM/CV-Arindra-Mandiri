@@ -24,6 +24,7 @@ Route::controller(PageController::class)->group(function () {
     Route::get('/cart', 'cart')->name('cart');
     Route::get('/cart/{id}', 'removeFromCart')->name('remove_from_cart');
     Route::post('/pdf/send-pdf', 'sendPDF')->name('cart.send.pdf');
+    Route::post('/generate-pdf', 'generatePDF')->name('generate.pdf');
     Route::get('/storage/pdf/{filename}', 'getPDF')->name('storage.pdf');
 });
 

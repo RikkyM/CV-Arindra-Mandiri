@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('kode_barang');
             $table->string('variant')->nullable();
             $table->integer('stock');
             $table->string('weight');
             $table->integer('exc_ppn');
             $table->integer('inc_ppn');
             $table->timestamps();
+
+            $table->unique('kode_barang');
         });
     }
 

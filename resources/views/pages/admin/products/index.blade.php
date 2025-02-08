@@ -5,6 +5,7 @@
         <thead class="bg-black text-white">
             <tr class="text-left *:py-3">
                 <th class="text-center">No.</th>
+                <th>Kode Barang</th>
                 <th>Nama Produk</th>
                 <th>Exc PPN</th>
                 <th>Inc PPN</th>
@@ -17,6 +18,7 @@
             @foreach ($products as $product)
                 <tr class="text-left *:py-5 even:bg-gray-200 hover:bg-gray-300">
                     <td class="text-center">{{ $loop->iteration }}</td>
+                    <td class="capitalize">{{ $product->kode_barang }}</td>
                     <td class="capitalize">{{ $product->product->nama_product }} {{ $product->variant }}</td>
                     <td class="capitalize">Rp. {{ number_format($product->exc_ppn, 0, ',', '.') }}</td>
                     <td class="capitalize">Rp. {{ number_format($product->inc_ppn, 0, ',', '.') }}</td>

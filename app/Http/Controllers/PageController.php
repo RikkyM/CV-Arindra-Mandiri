@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartDetail;
+use App\Models\Invoice;
 use App\Models\ProductDiscount;
 use App\Models\ProductVariant;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -131,12 +132,18 @@ class PageController extends Controller
         $grandTotal = 0;
 
         $cart = Cart::with(['CartDetail.product.discounts', 'CartDetail.variant'])
-            ->where('user_id', $user->id)
+        ->where('user_id', $user->id)
             ->first();
 
         if ($cart) {
+            $filteredDetails = collect();
+
             foreach ($cart->CartDetail as $detail) {
                 $qty = $request->input('qty.' . $detail->id, $detail->qty);
+
+                if ($qty <= 0) {
+                    continue;
+                }
 
                 $discount = ProductDiscount::calculateDiscount(
                     $detail->product->id,
@@ -162,24 +169,52 @@ class PageController extends Controller
                 }
 
                 $detail->qty = $qty;
+                $filteredDetails->push($detail);
             }
+
+            // **Generate Nomor Faktur dan Order Number**
+            $year = now()->format('y'); // Ambil dua digit tahun (misal 25 untuk 2025)
+            $lastInvoice = Invoice::where('invoice_number', 'LIKE', "AM/$year/%")
+            ->orderBy('id', 'desc')
+                ->first();
+
+            $nextNumber = $lastInvoice ? intval(substr($lastInvoice->invoice_number, -5)) + 1 : 1;
+
+            // **Format nomor faktur & order number**
+            $invoiceNumber = sprintf('AM/%s/%05d', $year, $nextNumber);
+            $orderNumber = sprintf('%s/%05d', $year, $nextNumber); // Tanpa "AM/"
+
+            // **Generate PDF**
+            $pdf = PDF::loadView('pdf.invoice', [
+                'user' => $user,
+                'cart' => $cart,
+                'details' => $filteredDetails,
+                'grandTotal' => $grandTotal,
+                'invoiceNumber' => $invoiceNumber,
+                'orderNumber' => $orderNumber
+            ]);
+
+            $pdf->setPaper('A4', 'landscape');
+
+            // **Simpan PDF dalam Folder `invoice/`**
+            $fileName = 'invoice_' . sprintf('%05d', $nextNumber) . '.pdf';
+            $filePath = 'invoice/' . $fileName; // Folder invoice/
+            Storage::put($filePath, $pdf->output());
+
+            // **Simpan Faktur ke Database**
+            Invoice::create([
+                'user_id' => $user->id,
+                'invoice_number' => $invoiceNumber,
+                'order_number' => $orderNumber,
+                'file_path' => $filePath
+            ]);
+
+            return $pdf->stream($fileName);
         }
 
-        $pdf = PDF::loadView('pdf.invoice', [
-            'user' => $user,
-            'cart' => $cart,
-            'details' => $cart ? $cart->CartDetail : collect(),
-            'grandTotal' => $grandTotal
-        ]);
-
-        $pdf->setPaper('A4', 'landscape');
-
-        $fileName = 'invoice_' . time() . '.pdf';
-        $filePath = 'pdf/' . $fileName;
-        Storage::put($filePath, $pdf->output());
-
-        return $filePath;
+        return back()->with('error', 'Cart is empty');
     }
+
 
     public function sendPDF(Request $request)
     {
@@ -197,7 +232,7 @@ class PageController extends Controller
 
     public function getPDF($filename)
     {
-        $filePath = 'pdf/' . $filename;
+        $filePath = 'invoice/' . $filename;
 
         if (!Storage::exists($filePath)) {
             abort(404, 'File not found.');

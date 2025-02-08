@@ -20,7 +20,7 @@
                     <p class="mt-3 text-gray-400">Tambahkan produk ke keranjang untuk melanjutkan.</p>
                 </div>
             @else
-                <form id="cart-form" action="{{ route('cart.send.pdf') }}" method="POST" class="space-y-5">
+                <form id="cart-form" action="{{ route('generate.pdf') }}" method="POST" class="space-y-5">
                     @csrf
                     @foreach ($details as $item)
                         <div class="flex h-56 max-h-56 w-full bg-white">
@@ -91,31 +91,29 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const incrementButtons = document.querySelectorAll('.increment-btn');
-            const decrementButtons = document.querySelectorAll('.decrement-btn');
+        const incrementButtons = document.querySelectorAll('.increment-btn');
+        const decrementButtons = document.querySelectorAll('.decrement-btn');
 
-            incrementButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const input = this.previousElementSibling;
-                    let value = parseInt(input.value, 10);
-                    value = isNaN(value) ? 0 : value;
-                    value++;
-                    input.value = value;
-                });
-            });
-
-            decrementButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const input = this.nextElementSibling;
-                    let value = parseInt(input.value, 10);
-                    value = isNaN(value) ? 0 : value;
-                    if (value > 1) {
-                        value--;
-                        input.value = value;
-                    }
-                });
+        incrementButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                let value = parseInt(input.value, 10) || 0;
+                value++;
+                input.value = value;
             });
         });
+
+        decrementButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.nextElementSibling;
+                let value = parseInt(input.value, 10) || 0;
+                if (value > 0) {
+                    value--;
+                    input.value = value;
+                }
+            });
+        });
+    });
 
         function sendToWhatsApp() {
             const form = document.getElementById('cart-form');

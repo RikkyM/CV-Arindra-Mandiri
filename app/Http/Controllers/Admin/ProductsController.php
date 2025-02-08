@@ -97,6 +97,18 @@ class ProductsController extends Controller
             'product_name.required_without' => 'Either select an existing product or create a new one.'
         ]);
 
+        $lastProduct = ProductVariant::orderBy('kode_barang', 'desc')->first();
+
+        if ($lastProduct) {
+            // Extract the numeric part and increment
+            $lastNumber = intval(substr($lastProduct->kode_barang, 4));
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        $kodeBarang = 'FFI-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+
         $file = $request->file('image');
         $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
         $imagePath = $file->storeAs('products', $fileName);
@@ -118,6 +130,7 @@ class ProductsController extends Controller
 
         ProductVariant::create([
             'product_id' => $product->id,
+            'kode_barang' => $kodeBarang,
             'variant' => $validatedData['variant'],
             'stock' => $validatedData['stock'],
             'weight' => $validatedData['weight'] . " " . $validatedData['weight_unit'],
